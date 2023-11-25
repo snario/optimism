@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/ethereum-optimism/optimism/op-bindings/etherscan"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type contractData struct {
@@ -24,6 +26,12 @@ func (generator *bindGenGeneratorRemote) standardHandler(contractMetadata *remot
 	}
 
 	contractMetadata.DeployedBin = fetchedData.deployedBin
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "eth"); err != nil {
+		return err
+	}
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "op"); err != nil {
+		return err
+	}
 
 	// If ABI was explicitly provided by config, don't overwrite
 	if contractMetadata.Abi == "" {
@@ -61,6 +69,12 @@ func (generator *bindGenGeneratorRemote) multiSendHandler(contractMetadata *remo
 
 	contractMetadata.Abi = fetchedData.abi
 	contractMetadata.DeployedBin = fetchedData.deployedBin
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "eth"); err != nil {
+		return err
+	}
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "op"); err != nil {
+		return err
+	}
 	if contractMetadata.InitBin, err = generator.removeDeploymentSalt(fetchedData.deploymentTx.Input, contractMetadata.DeploymentSalt); err != nil {
 		return err
 	}
@@ -73,6 +87,12 @@ func (generator *bindGenGeneratorRemote) senderCreatorHandler(contractMetadata *
 	contractMetadata.DeployedBin, err = generator.contractDataClients["eth"].FetchDeployedBytecode(contractMetadata.Deployments["eth"])
 	if err != nil {
 		return fmt.Errorf("error fetching deployed bytecode: %w", err)
+	}
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "eth"); err != nil {
+		return err
+	}
+	if err = generator.compareDeployedBytecodeWithRpc(contractMetadata, "op"); err != nil {
+		return err
 	}
 
 	if err := generator.compareBytecodeWithOp(contractMetadata, false, true); err != nil {
@@ -190,6 +210,36 @@ func (generator *bindGenGeneratorRemote) compareBytecodeWithOp(contractMetadataE
 				opContractData.deployedBin,
 			)
 		}
+	}
+
+	return nil
+}
+
+func (generator *bindGenGeneratorRemote) compareDeployedBytecodeWithRpc(contractMetadata *remoteContractMetadata, chain string) error {
+	client, ok := generator.rpcClients[chain]
+	if !ok {
+		generator.logger.Crit("unknown chain, unable to retrieve a RPC client", "chain", chain)
+	}
+
+	if contractMetadata.Deployments[chain] != "" {
+		bytecode, err := client.CodeAt(context.Background(), common.HexToAddress(contractMetadata.Deployments[chain]), nil)
+		if err != nil {
+			generator.logger.Crit(
+				"Error getting deployed bytecode from RPC",
+				"chain", chain,
+				"err", err,
+			)
+		}
+		bytecodeHex := common.Bytes2Hex(bytecode)
+		if !strings.EqualFold(strings.TrimPrefix(contractMetadata.DeployedBin, "0x"), bytecodeHex) {
+			generator.logger.Crit(
+				"Deployment bytecode from RPC doesn't match bytecode from Etherscan",
+				"rpcBytecode", bytecodeHex,
+				"etherscanBytecode", contractMetadata.DeployedBin,
+			)
+		}
+	} else {
+		generator.logger.Warn("Unable to compare bytecode from Etherscan against RPC client, no deployment address provided for chain", "chain", chain)
 	}
 
 	return nil

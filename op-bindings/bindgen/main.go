@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum-optimism/optimism/op-bindings/etherscan"
 	"github.com/ethereum-optimism/optimism/op-e2e/config"
 	oplog "github.com/ethereum-optimism/optimism/op-service/log"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
 )
@@ -171,6 +172,14 @@ func parseConfigRemote(logger log.Logger, c *cli.Context) (bindGenGeneratorRemot
 	generator.contractDataClients = make(map[string]contractDataClient)
 	generator.contractDataClients["eth"] = etherscan.NewEthereumClient(c.String(EtherscanApiKeyEthFlagName))
 	generator.contractDataClients["op"] = etherscan.NewOptimismClient(c.String(EtherscanApiKeyOpFlagName))
+
+	generator.rpcClients = make(map[string]*ethclient.Client)
+	if generator.rpcClients["eth"], err = ethclient.Dial(c.String(RpcUrlEthFlagName)); err != nil {
+		return bindGenGeneratorRemote{}, fmt.Errorf("error initializing Ethereum client: %w", err)
+	}
+	if generator.rpcClients["op"], err = ethclient.Dial(c.String(RpcUrlOpFlagName)); err != nil {
+		return bindGenGeneratorRemote{}, fmt.Errorf("error initializing Optimism client: %w", err)
+	}
 	return generator, nil
 }
 
@@ -220,6 +229,16 @@ func remoteFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:     EtherscanApiKeyOpFlagName,
 			Usage:    "API key to make queries to Etherscan for Optimism",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     RpcUrlEthFlagName,
+			Usage:    "RPC URL (with API key if required) to query Ethereum",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     RpcUrlOpFlagName,
+			Usage:    "RPC URL (with API key if required) to query Optimism",
 			Required: true,
 		},
 	}

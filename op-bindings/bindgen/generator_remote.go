@@ -5,11 +5,13 @@ import (
 	"os"
 
 	"github.com/ethereum-optimism/optimism/op-bindings/etherscan"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type bindGenGeneratorRemote struct {
 	bindGenGeneratorBase
 	contractDataClients map[string]contractDataClient
+	rpcClients          map[string]*ethclient.Client
 	tempArtifactsDir    string
 }
 
