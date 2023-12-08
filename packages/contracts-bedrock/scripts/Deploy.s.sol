@@ -377,9 +377,7 @@ contract Deploy is Deployer {
     /// @notice Deploy the ProxyAdmin
     function deployProxyAdmin() public broadcast returns (address addr_) {
         console.log("Deploying ProxyAdmin");
-        ProxyAdmin admin = new ProxyAdmin({
-            _owner: msg.sender
-        });
+        ProxyAdmin admin = new ProxyAdmin({ _owner: msg.sender });
         require(admin.owner() == msg.sender);
 
         AddressManager addressManager = AddressManager(mustGetAddress("AddressManager"));
@@ -437,9 +435,7 @@ contract Deploy is Deployer {
     function deployERC1967Proxy(string memory _name) public broadcast returns (address addr_) {
         console.log(string.concat("Deploying ERC1967 proxy for", _name, ""));
         address proxyAdmin = mustGetAddress("ProxyAdmin");
-        Proxy proxy = new Proxy({
-            _admin: proxyAdmin
-        });
+        Proxy proxy = new Proxy({ _admin: proxyAdmin });
 
         address admin = address(uint160(uint256(vm.load(address(proxy), OWNER_KEY))));
         require(admin == proxyAdmin);
@@ -469,9 +465,8 @@ contract Deploy is Deployer {
     function deployL1CrossDomainMessenger() public broadcast returns (address addr_) {
         console.log("Deploying L1CrossDomainMessenger implementation");
         address portal = mustGetAddress("OptimismPortalProxy");
-        L1CrossDomainMessenger messenger = new L1CrossDomainMessenger{ salt: _implSalt() }({
-            _portal: OptimismPortal(payable(portal))
-        });
+        L1CrossDomainMessenger messenger =
+            new L1CrossDomainMessenger{ salt: _implSalt() }({ _portal: OptimismPortal(payable(portal)) });
 
         save("L1CrossDomainMessenger", address(messenger));
         console.log("L1CrossDomainMessenger deployed at %s", address(messenger));
@@ -495,10 +490,8 @@ contract Deploy is Deployer {
         L2OutputOracle l2OutputOracle = L2OutputOracle(mustGetAddress("L2OutputOracleProxy"));
         SystemConfig systemConfig = SystemConfig(mustGetAddress("SystemConfigProxy"));
 
-        OptimismPortal portal = new OptimismPortal{ salt: _implSalt() }({
-            _l2Oracle: l2OutputOracle,
-            _systemConfig: systemConfig
-        });
+        OptimismPortal portal =
+            new OptimismPortal{ salt: _implSalt() }({ _l2Oracle: l2OutputOracle, _systemConfig: systemConfig });
 
         save("OptimismPortal", address(portal));
         console.log("OptimismPortal deployed at %s", address(portal));
@@ -548,7 +541,7 @@ contract Deploy is Deployer {
         console.log("Deploying OptimismMintableERC20Factory implementation");
         address l1standardBridgeProxy = mustGetAddress("L1StandardBridgeProxy");
         OptimismMintableERC20Factory factory =
-            new OptimismMintableERC20Factory{ salt: _implSalt() }({_bridge: l1standardBridgeProxy});
+            new OptimismMintableERC20Factory{ salt: _implSalt() }({ _bridge: l1standardBridgeProxy });
 
         save("OptimismMintableERC20Factory", address(factory));
         console.log("OptimismMintableERC20Factory deployed at %s", address(factory));
@@ -657,9 +650,8 @@ contract Deploy is Deployer {
         console.log("Deploying L1StandardBridge implementation");
         address l1CrossDomainMessengerProxy = mustGetAddress("L1CrossDomainMessengerProxy");
 
-        L1StandardBridge bridge = new L1StandardBridge{ salt: _implSalt() }({
-            _messenger: payable(l1CrossDomainMessengerProxy)
-        });
+        L1StandardBridge bridge =
+            new L1StandardBridge{ salt: _implSalt() }({ _messenger: payable(l1CrossDomainMessengerProxy) });
 
         save("L1StandardBridge", address(bridge));
         console.log("L1StandardBridge deployed at %s", address(bridge));
@@ -684,14 +676,6 @@ contract Deploy is Deployer {
 
         require(address(bridge.MESSENGER()) == address(0));
         require(bridge.OTHER_BRIDGE() == Predeploys.L2_ERC721_BRIDGE);
-
-        // Override the `L1ERC721Bridge` contract to the deployed implementation. This is necessary
-        // to check the `L1ERC721Bridge` implementation alongside dependent contracts, which
-        // are always proxies.
-        Types.ContractSet memory contracts = _proxiesUnstrict();
-        contracts.L1ERC721Bridge = address(bridge);
-
-        ChainAssertions.checkL1ERC721Bridge({ _contracts: contracts, _isProxy: false });
 
         addr_ = address(bridge);
     }
