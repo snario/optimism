@@ -159,5 +159,5 @@ func TestPostieInboxRelay(t *testing.T) {
 	rec, err := wait.ForReceiptOK(context.Background(), testSuite.OpSysA.Clients["sequencer"], tx.Hash())
 	require.NoError(t, err)
 	t.Log("receipt", rec)
-	wait.PrintDebugTrace(context.Background(), testSuite.OpSysA.Clients["sequencer"], tx.Hash())
+	//wait.PrintDebugTrace(context.Background(), testSuite.OpSysA.Clients["sequencer"], tx.Hash())
 }
