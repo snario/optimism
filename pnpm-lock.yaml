@@ -130,7 +130,7 @@ importers:
         version: 8.0.1(@swc/core@1.3.100)(typescript@5.3.3)
       vitest:
         specifier: ^1.0.1
-        version: 1.0.1(@types/node@20.10.4)
+        version: 1.0.1(@types/node@20.10.4)(jsdom@23.0.1)
 
   op-exporter: {}
 
@@ -314,8 +314,8 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0
       '@vitest/coverage-istanbul':
-        specifier: ^1.0.2
-        version: 1.0.2(vitest@1.0.1)
+        specifier: ^1.0.4
+        version: 1.0.4(vitest@1.0.1)
       '@wagmi/cli':
         specifier: ^1.5.2
         version: 1.5.2(@wagmi/core@1.4.10)(typescript@5.3.3)(wagmi@1.0.1)
@@ -414,8 +414,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(react@17.0.2)
       '@vitest/coverage-istanbul':
-        specifier: ^1.0.2
-        version: 1.0.2(vitest@1.0.1)
+        specifier: ^1.0.4
+        version: 1.0.4(vitest@1.0.1)
       abitype:
         specifier: ^0.10.3
         version: 0.10.3(typescript@5.3.3)
@@ -530,7 +530,7 @@ importers:
         version: 1.19.11(typescript@5.3.3)(zod@3.22.4)
       vitest:
         specifier: ^1.0.1
-        version: 1.0.1(@types/node@20.10.4)
+        version: 1.0.1(@types/node@20.10.4)(jsdom@23.0.1)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -557,8 +557,8 @@ importers:
         specifier: ^1.3.100
         version: 1.3.100
       '@vitest/coverage-istanbul':
-        specifier: ^1.0.2
-        version: 1.0.2(vitest@1.0.1)
+        specifier: ^1.0.4
+        version: 1.0.4(vitest@1.0.1)
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@swc/core@1.3.100)(typescript@5.3.3)
@@ -573,7 +573,7 @@ importers:
         version: 5.0.6(@types/node@20.10.4)
       vitest:
         specifier: ^1.0.1
-        version: 1.0.1(@types/node@20.10.4)
+        version: 1.0.1(@types/node@20.10.4)(jsdom@23.0.1)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -4470,8 +4470,8 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@vitest/coverage-istanbul@1.0.2(vitest@1.0.1):
-    resolution: {integrity: sha512-HZk0VYYvLrUX/TExxxVT7DwowqjJXmm4LbKGYBLN9HwYZe50nGYU3K/KisnOY7lgt0+Po4MLVa2fXe2ediyr9g==}
+  /@vitest/coverage-istanbul@1.0.4(vitest@1.0.1):
+    resolution: {integrity: sha512-6qoSzTR+sanwY/dREqu6OFJupo/mHzCcboh03rLwqH2V2B39505lDr9FpqaLwU1vQgeUKNA+CdHPkpNpusxkDw==}
     peerDependencies:
       vitest: ^1.0.0
     dependencies:
@@ -14965,63 +14965,6 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@1.0.1(@types/node@20.10.4):
-    resolution: {integrity: sha512-MHsOj079S28hDsvdDvyD1pRj4dcS51EC5Vbe0xvOYX+WryP8soiK2dm8oULi+oA/8Xa/h6GoJEMTmcmBy5YM+Q==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@types/node': ^18.0.0 || >=20.0.0
-      '@vitest/browser': ^1.0.0
-      '@vitest/ui': ^1.0.0
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@types/node':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@types/node': 20.10.4
-      '@vitest/expect': 1.0.1
-      '@vitest/runner': 1.0.1
-      '@vitest/snapshot': 1.0.1
-      '@vitest/spy': 1.0.1
-      '@vitest/utils': 1.0.1
-      acorn-walk: 8.3.0
-      cac: 6.7.14
-      chai: 4.3.10
-      debug: 4.3.4(supports-color@8.1.1)
-      execa: 8.0.1
-      local-pkg: 0.5.0
-      magic-string: 0.30.5
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      std-env: 3.6.0
-      strip-literal: 1.3.0
-      tinybench: 2.5.1
-      tinypool: 0.8.1
-      vite: 5.0.5(@types/node@20.10.4)
-      vite-node: 1.0.1(@types/node@20.10.4)
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vitest@1.0.1(@types/node@20.10.4)(jsdom@23.0.1):
     resolution: {integrity: sha512-MHsOj079S28hDsvdDvyD1pRj4dcS51EC5Vbe0xvOYX+WryP8soiK2dm8oULi+oA/8Xa/h6GoJEMTmcmBy5YM+Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -15067,7 +15010,7 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.8.1
-      vite: 5.0.6(@types/node@20.10.4)
+      vite: 5.0.5(@types/node@20.10.4)
       vite-node: 1.0.1(@types/node@20.10.4)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
