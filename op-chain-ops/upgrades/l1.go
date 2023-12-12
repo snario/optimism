@@ -269,11 +269,21 @@ func OptimismPortal(batch *safe.Batch, implementations superchain.Implementation
 		return err
 	}
 
-	var superchainConfigGuardian common.Address
+	var superchainConfigGuardian, l2OutputOracle, systemConfig common.Address
 	if config != nil {
+		l2OutputOracle = common.HexToAddress(list.L2OutputOracleProxy.String())
+		systemConfig = common.HexToAddress(chainConfig.SystemConfigAddr.String())
 		superchainConfigGuardian = config.SuperchainConfigGuardian
 	} else {
 		optimismPortal, err := bindings.NewOptimismPortalCaller(common.HexToAddress(list.OptimismPortalProxy.String()), backend)
+		if err != nil {
+			return err
+		}
+		l2OutputOracle, err = optimismPortal.L2ORACLE(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		systemConfig, err = optimismPortal.SYSTEMCONFIG(&bind.CallOpts{})
 		if err != nil {
 			return err
 		}
@@ -284,7 +294,7 @@ func OptimismPortal(batch *safe.Batch, implementations superchain.Implementation
 		superchainConfigGuardian = guardian
 	}
 
-	calldata, err := optimismPortalABI.Pack("initialize", common.HexToAddress(list.L2OutputOracleProxy.String()), superchainConfigGuardian, common.HexToAddress(chainConfig.SystemConfigAddr.String()), false)
+	calldata, err := optimismPortalABI.Pack("initialize", l2OutputOracle, systemConfig, superchainConfigGuardian)
 	if err != nil {
 		return err
 	}
