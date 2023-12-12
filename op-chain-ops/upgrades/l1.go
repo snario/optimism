@@ -87,7 +87,32 @@ func L1ERC721Bridge(batch *safe.Batch, implementations superchain.Implementation
 		return err
 	}
 
-	calldata, err := l1ERC721BridgeABI.Pack("initialize", common.HexToAddress(list.L1CrossDomainMessengerProxy.String()))
+	var messenger, otherBridge, superchainConfigGuardian common.Address
+	if config != nil {
+		messenger = common.HexToAddress(list.L1CrossDomainMessengerProxy.String())
+		otherBridge = common.HexToAddress(list.L1StandardBridgeProxy.String())
+		superchainConfigGuardian = config.SuperchainConfigGuardian
+	} else {
+		l1ERC721Bridge, err := bindings.NewL1ERC721BridgeCaller(common.HexToAddress(list.L1ERC721BridgeProxy.String()), backend)
+		if err != nil {
+			return err
+		}
+		messenger, err = l1ERC721Bridge.MESSENGER(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		otherBridge, err = l1ERC721Bridge.OTHERBRIDGE(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		guardian, err := l1ERC721Bridge.SuperchainConfig(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		superchainConfigGuardian = guardian
+	}
+
+	calldata, err := l1ERC721BridgeABI.Pack("initialize", messenger, otherBridge, superchainConfigGuardian)
 	if err != nil {
 		return err
 	}
