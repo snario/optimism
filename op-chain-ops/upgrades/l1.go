@@ -56,7 +56,27 @@ func L1CrossDomainMessenger(batch *safe.Batch, implementations superchain.Implem
 		return err
 	}
 
-	calldata, err := l1CrossDomainMessengerABI.Pack("initialize", common.HexToAddress(list.OptimismPortalProxy.String()))
+	var optimismPortal, superchainConfigGuardian common.Address
+	if config != nil {
+		optimismPortal = common.HexToAddress(list.OptimismPortalProxy.String())
+		superchainConfigGuardian = config.SuperchainConfigGuardian
+	} else {
+		l1CrossDomainMessenger, err := bindings.NewL1CrossDomainMessengerCaller(common.HexToAddress(list.L1CrossDomainMessengerProxy.String()), backend)
+		if err != nil {
+			return err
+		}
+		optimismPortal, err = l1CrossDomainMessenger.PORTAL(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		guardian, err := l1CrossDomainMessenger.SuperchainConfig(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		superchainConfigGuardian = guardian
+	}
+
+	calldata, err := l1CrossDomainMessengerABI.Pack("initialize", optimismPortal, superchainConfigGuardian)
 	if err != nil {
 		return err
 	}
