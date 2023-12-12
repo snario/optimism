@@ -140,7 +140,32 @@ func L1StandardBridge(batch *safe.Batch, implementations superchain.Implementati
 		return err
 	}
 
-	calldata, err := l1StandardBridgeABI.Pack("initialize", common.HexToAddress(list.L1CrossDomainMessengerProxy.String()))
+	var messenger, otherBridge, superchainConfigGuardian common.Address
+	if config != nil {
+		messenger = common.HexToAddress(list.L1CrossDomainMessengerProxy.String())
+		otherBridge = common.HexToAddress(list.L1StandardBridgeProxy.String())
+		superchainConfigGuardian = config.SuperchainConfigGuardian
+	} else {
+		l1StandardBridge, err := bindings.NewL1StandardBridgeCaller(common.HexToAddress(list.L1StandardBridgeProxy.String()), backend)
+		if err != nil {
+			return err
+		}
+		messenger, err = l1StandardBridge.MESSENGER(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		otherBridge, err = l1StandardBridge.OTHERBRIDGE(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		guardian, err := l1StandardBridge.SuperchainConfig(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		superchainConfigGuardian = guardian
+	}
+
+	calldata, err := l1StandardBridgeABI.Pack("initialize", messenger, otherBridge, superchainConfigGuardian)
 	if err != nil {
 		return err
 	}
